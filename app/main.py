@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.auth import router as auth_router
 from app.core.config import settings
+from app.core.security import get_current_user
+from app.models.auth import User
 
 app = FastAPI()
 
@@ -13,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+app.include_router(auth_router)
 
 
 @app.get("/")
