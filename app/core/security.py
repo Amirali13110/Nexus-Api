@@ -6,7 +6,8 @@ from app.core.database import get_db
 from app.models.auth import User
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+import secrets
+import hashlib
 from datetime import datetime, timedelta, timezone
 from jose import jwt
 from app.core.config import settings
@@ -79,3 +80,11 @@ async def get_current_user(
         raise credentials_exception
 
     return user
+
+
+def generate_reset_token() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()

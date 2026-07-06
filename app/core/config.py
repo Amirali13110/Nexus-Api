@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     ALGORITHM: str
+    RESEND_API_KEY: str
+    FRONTEND_RESET_URL: str
+    MAIL_FROM: str
 
     class Config:
         env_file = ".env"
