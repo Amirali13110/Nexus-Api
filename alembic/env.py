@@ -85,6 +85,7 @@ import asyncio
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from app.core.database import Base
 from app.models.auth import User
+from app.models.profile import Profile
 
 config = context.config
 

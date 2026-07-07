@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from app.models.profile import Profile
 from app.services.email_services import send_reset_password_email
 from app.core.config import settings
 from sqlalchemy.exc import IntegrityError
@@ -31,42 +32,68 @@ frontend_url = settings.FRONTEND_RESET_URL
 
 
 @router.post(
-    "/signup", response_model=TokenResponse, status_code=status.HTTP_201_CREATED
+    "/signup",
+    response_model=TokenResponse,
+    status_code=status.HTTP_201_CREATED,
 )
-async def sign_up(credentials: UserCreate, db: AsyncSession = Depends(get_db)):
-
-    result = await db.execute(
-        select(User).where(
-            (User.email == credentials.email) | (User.username == credentials.username)
-        )
-    )
+async def sign_up(
+    credentials: UserCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(User).where(User.email == credentials.email))
     existing_user = result.scalar_one_or_none()
+
     if existing_user:
-        field = "Email" if existing_user.email == credentials.email else "Username"
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"{field} already registered",
+            detail="Email already registered",
+        )
+
+    result = await db.execute(
+        select(Profile).where(Profile.username == credentials.username)
+    )
+    existing_profile = result.scalar_one_or_none()
+
+    if existing_profile:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already taken",
         )
 
     hashed_password = get_password_hash(credentials.password)
+
     new_user = User(
-        username=credentials.username,
         email=credentials.email,
         hashed_password=hashed_password,
     )
 
     db.add(new_user)
+
     try:
+        await db.flush()
+
+        new_profile = Profile(
+            user_id=new_user.id,
+            username=credentials.username,
+            full_name=credentials.full_name,
+        )
+
+        db.add(new_profile)
+
         await db.commit()
+
     except IntegrityError:
         await db.rollback()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email or username already registered",
+            detail="Unable to create account.",
         )
+
     await db.refresh(new_user)
+    await db.refresh(new_profile)
 
     access_token = create_access_token(data={"sub": str(new_user.id)})
+
     refresh_token = create_refresh_token(data={"sub": str(new_user.id)})
 
     return {
@@ -168,3 +195,33 @@ async def reset_password(
     await db.commit()
 
     return {"message": "Password has been reset successfully."}
+
+
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordRequestForm
+
+
+@router.post("/token", response_model=TokenResponse)
+async def login_for_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: AsyncSession = Depends(get_db),
+):
+    email = form_data.username
+
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
+
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password",
+        )
+
+    access_token = create_access_token({"sub": str(user.id)})
+    refresh_token = create_refresh_token({"sub": str(user.id)})
+
+    return TokenResponse(
+        access_token=access_token,
+        refresh_token=refresh_token,
+        user=UserResponse.model_validate(user),
+    )
