@@ -6,10 +6,12 @@ The application includes a secure and modern authentication system built with Fa
 
 * ✅ User registration (Sign Up)
 * ✅ User authentication (Sign In)
-* ✅ Password hashing using secure cryptographic algorithms
 * ✅ JWT-based authentication
+* ✅ Password hashing using secure cryptographic algorithms
 * ✅ Forgot Password functionality
 * ✅ Password Reset via secure magic link
+* ✅ Secure Password Update
+* ✅ Secure Email Change with verification
 * ✅ One-time reset tokens with expiration
 * ✅ Protected routes using JWT authentication
 * ✅ Input validation and proper error handling
@@ -19,18 +21,25 @@ The application includes a secure and modern authentication system built with Fa
 1. A user creates an account using the **Sign Up** endpoint.
 2. The user authenticates through the **Sign In** endpoint and receives a JWT access token.
 3. Protected endpoints require a valid JWT in the `Authorization` header.
-4. If the user forgets their password, they can request a password reset.
-5. A secure, time-limited magic link is sent to the user's email.
-6. Opening the magic link allows the user to set a new password.
-7. After resetting the password, the user can sign in with their new credentials.
+4. Authenticated users can securely change their password by providing their current password.
+5. Authenticated users can request an email change, which sends a verification link to the new email address.
+6. The email address is updated only after the verification link is successfully confirmed.
+7. If the user forgets their password, they can request a password reset.
+8. A secure, time-limited magic link is sent to the user's email.
+9. Opening the magic link allows the user to set a new password.
+10. After resetting or updating their password, the user can sign in with their new credentials.
 
 ### Security
 
 * Passwords are never stored in plain text.
+* Passwords are securely hashed using industry-standard cryptographic algorithms.
+* Current password verification is required before changing the account password.
 * Password reset links are cryptographically secure and expire automatically.
 * Reset tokens are single-use and invalidated after successful password reset.
-* JWTs are signed using a secure secret key and configurable expiration time.
+* Email changes require ownership verification of the new email address before taking effect.
+* JWTs are signed using a secure secret key with configurable expiration times.
 * Authentication endpoints include proper validation and consistent error responses.
+* Sensitive account operations are accessible only to authenticated users.
 
 
 ## Profile Management

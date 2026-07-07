@@ -72,3 +72,27 @@ class ResetPasswordRequest(BaseModel):
     @classmethod
     def validate_password(cls, v: str) -> str:
         return validate_password(v)
+
+
+class UpdatePasswordRequest(BaseModel):
+    password: str
+    new_password: str = Field(min_length=8, max_length=128)
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        return validate_password(v)
+
+
+class UpdateEmailRequest(BaseModel):
+    password: str
+    new_email: EmailStr
+
+    @field_validator("new_email")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.strip().lower()
+
+
+class ConfirmEmailUpdateRequest(BaseModel):
+    token: str
