@@ -1,4 +1,4 @@
-## 🔐 Authentication
+##  Authentication
 
 The application includes a secure and modern authentication system built with FastAPI.
 
@@ -67,3 +67,31 @@ The application includes a scalable and secure profile management system built w
 5. All profile updates are validated before being saved.
 6. Username uniqueness is enforced across all profiles.
 7. Every profile remains securely associated with its corresponding user account
+
+
+
+Workspace Management
+
+The application provides a complete workspace management system, allowing users to organize their projects in a secure and scalable way.
+
+Features
+✅ Create new workspaces
+✅ Retrieve all accessible workspaces
+✅ Update workspace information
+✅ Delete workspaces
+✅ Unique workspace slugs per owner
+✅ Secure ownership verification
+✅ Input validation and proper error handling
+Workspace Flow
+A signed-in user creates a new workspace.
+Each workspace is assigned to its owner.
+Every workspace includes a unique slug within the owner's account.
+Users can retrieve all workspaces they own.
+Workspace details can be updated at any time.
+Workspaces can be permanently deleted by their owner.
+Security
+Only authenticated users can manage workspaces.
+Users can only create workspaces under their own account.
+Workspace ownership is verified before every update or deletion.
+Duplicate workspace slugs are prevented for the same owner.
+Database constraints ensure data integrity even during concurrent requests.
