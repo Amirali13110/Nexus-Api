@@ -77,13 +77,44 @@ async def get_workspaces(
 ):
     result = await db.execute(
         select(Workspace)
-        .where(Workspace.owner_id == current_user.id)
+        .join(Workspace.members)
+        .where(WorkspaceMember.user_id == current_user.id)
         .order_by(Workspace.created_at.desc())
     )
 
     workspaces = result.scalars().all()
 
     return workspaces
+
+
+@router.get(
+    "/{workspace_id}",
+    response_model=WorkspaceResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_workspace(
+    workspace_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        select(Workspace)
+        .join(Workspace.members)
+        .where(
+            Workspace.id == workspace_id,
+            WorkspaceMember.user_id == current_user.id,
+        )
+    )
+
+    workspace = result.scalar_one_or_none()
+
+    if not workspace:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Workspace not found.",
+        )
+
+    return workspace
 
 
 @router.patch(

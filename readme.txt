@@ -116,3 +116,16 @@ Database constraints ensure data integrity even during concurrent requests.
 ✅ Joined loading for related workspace and user data
 ✅ ULID-based invitation identifiers
 ✅ Input validation and comprehensive error handling
+
+
+
+## Workspace Member Management & Role-Based Permissions
+
+- ✅ Member creation and workspace invitations
+- ✅ Dynamic member role updates
+- ✅ Role-based permission system (Owner, Admin, Member)
+- ✅ Member removal with permission validation
+- ✅ Leave workspace functionality
+- ✅ Workspace access control and membership validation
+- ✅ Duplicate membership prevention
+- ✅ Input validation and comprehensive error handling
