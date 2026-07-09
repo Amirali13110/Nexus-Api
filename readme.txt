@@ -4,17 +4,18 @@ The application includes a secure and modern authentication system built with Fa
 
 ### Features
 
-* ✅ User registration (Sign Up)
-* ✅ User authentication (Sign In)
-* ✅ JWT-based authentication
-* ✅ Password hashing using secure cryptographic algorithms
-* ✅ Forgot Password functionality
-* ✅ Password Reset via secure magic link
-* ✅ Secure Password Update
-* ✅ Secure Email Change with verification
-* ✅ One-time reset tokens with expiration
-* ✅ Protected routes using JWT authentication
-* ✅ Input validation and proper error handling
+✅ User registration (Sign Up)
+✅ User authentication (Sign In)
+✅ JWT-based authentication
+✅ Password hashing using secure cryptographic algorithms
+✅ Forgot Password functionality
+✅ Password Reset via secure magic link
+✅ Secure Password Update
+✅ Secure Email Change with verification
+✅ One-time reset tokens with expiration
+✅ Protected routes using JWT authentication
+✅ Input validation and proper error handling
+
 
 ### Authentication Flow
 
@@ -48,15 +49,15 @@ The application includes a scalable and secure profile management system built w
 
 ### Features
 
-* ✅ Automatic profile creation after user registration
-* ✅ One-to-one relationship between User and Profile
-* ✅ Secure profile update endpoint
-* ✅ Username uniqueness validation
-* ✅ Full name, bio, and avatar URL support
-* ✅ Optional profile fields with strict validation
-* ✅ Authentication-protected profile operations
-* ✅ Clean request and response schemas using Pydantic
-* ✅ Optimized SQLAlchemy relationships
+✅ Automatic profile creation after user registration
+✅ One-to-one relationship between User and Profile
+✅ Secure profile update endpoint
+✅ Username uniqueness validation
+✅ Full name, bio, and avatar URL support
+✅ Optional profile fields with strict validation
+✅ Authentication-protected profile operations
+✅ Clean request and response schemas using Pydantic
+✅ Optimized SQLAlchemy relationships
 
 ### Profile Flow
 
@@ -95,3 +96,23 @@ Users can only create workspaces under their own account.
 Workspace ownership is verified before every update or deletion.
 Duplicate workspace slugs are prevented for the same owner.
 Database constraints ensure data integrity even during concurrent requests.
+
+
+# Workspace Invitations
+
+✅ Create workspace invitations
+✅ Retrieve received invitations
+✅ Retrieve sent invitations
+✅ Accept workspace invitations
+✅ Decline workspace invitations
+✅ Cancel workspace invitations
+✅ Invitation expiration support
+✅ Automatic workspace member creation on acceptance
+✅ Workspace role assignment through invitations
+✅ Pending, Accepted, Declined, Canceled and Expired invitation lifecycle
+✅ Duplicate invitation prevention
+✅ Secure invitation ownership verification
+✅ Authentication and authorization checks
+✅ Joined loading for related workspace and user data
+✅ ULID-based invitation identifiers
+✅ Input validation and comprehensive error handling

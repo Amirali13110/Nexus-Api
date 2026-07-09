@@ -42,7 +42,7 @@ class UserLogin(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: str
     email: str
 
     model_config = ConfigDict(from_attributes=True)
@@ -90,7 +90,7 @@ class UpdateEmailRequest(BaseModel):
 
     @field_validator("new_email")
     @classmethod
-    def normalize_email(cls, v: str) -> str:
+    def validate_email(cls, v: str) -> str:
         return v.strip().lower()
 
 

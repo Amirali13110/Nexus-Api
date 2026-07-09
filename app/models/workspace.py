@@ -1,13 +1,17 @@
+import app.models
+
 from sqlalchemy import (
     Column,
     DateTime,
     ForeignKey,
-    Integer,
     String,
     Text,
     UniqueConstraint,
     func,
 )
+
+from sqlalchemy.orm import relationship
+from ulid import ULID
 
 from app.core.database import Base
 
@@ -23,13 +27,16 @@ class Workspace(Base):
         ),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        String(26),
+        primary_key=True,
+        default=lambda: str(ULID()),
+    )
 
     owner_id = Column(
-        Integer,
+        String(26),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
-        index=True,
     )
 
     name = Column(
@@ -59,4 +66,11 @@ class Workspace(Base):
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
+    )
+
+    invitations = relationship("WorkspaceInvitation", back_populates="workspace")
+
+    members = relationship(
+        "WorkspaceMember",
+        back_populates="workspace",
     )

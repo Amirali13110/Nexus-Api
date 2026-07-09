@@ -2,11 +2,11 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.auth import User
 from app.models.workspace import Workspace
+from app.models.workspace_member import WorkspaceMember, WorkspaceRole
 from app.schemas.workspace import WorkspacePayload, WorkspaceListItem, WorkspaceResponse
 
 router = APIRouter(prefix="/workspaces", tags=["Workspaces"])
@@ -43,8 +43,15 @@ async def create_workspace(
         slug=workspace.slug,
         description=workspace.description,
     )
-
     db.add(new_workspace)
+
+    await db.flush()
+
+    owner_member = WorkspaceMember(
+        workspace_id=new_workspace.id, user_id=current_user.id, role=WorkspaceRole.OWNER
+    )
+
+    db.add(owner_member)
 
     try:
         await db.commit()
@@ -84,7 +91,7 @@ async def get_workspaces(
     response_model=WorkspaceResponse,
 )
 async def update_workspace(
-    workspace_id: int,
+    workspace_id: str,
     workspace: WorkspacePayload,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -143,7 +150,7 @@ async def update_workspace(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_workspace(
-    workspace_id: int,
+    workspace_id: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):

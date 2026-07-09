@@ -29,7 +29,7 @@ class WorkspacePayload(BaseModel):
 
 
 class WorkspaceListItem(BaseModel):
-    id: int
+    id: str
     name: str
     slug: str
     description: str | None
@@ -38,8 +38,8 @@ class WorkspaceListItem(BaseModel):
 
 
 class WorkspaceResponse(BaseModel):
-    id: int
-    owner_id: int
+    id: str
+    owner_id: str
     name: str
     slug: str
     description: str | None

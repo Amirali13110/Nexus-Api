@@ -1,5 +1,7 @@
-from sqlalchemy import Column, ForeignKey, Integer, String
+import app.models
+from sqlalchemy import Column, ForeignKey, String
 from sqlalchemy.orm import relationship
+from ulid import ULID
 
 from app.core.database import Base
 
@@ -7,10 +9,14 @@ from app.core.database import Base
 class Profile(Base):
     __tablename__ = "profiles"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(
+        String(26),
+        primary_key=True,
+        default=lambda: str(ULID()),
+    )
 
     user_id = Column(
-        Integer,
+        String(26),
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
