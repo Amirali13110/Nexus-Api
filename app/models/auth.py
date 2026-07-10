@@ -47,6 +47,7 @@ class PasswordResetToken(Base):
         String(26),
         ForeignKey("users.id", onupdate="CASCADE"),
         nullable=False,
+        index=True,
     )
     token_hash = Column(String, nullable=False, index=True)
     expires_at = Column(DateTime(timezone=True), nullable=False)
@@ -66,6 +67,7 @@ class EmailChangeToken(Base):
         String(26),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     new_email = Column(String, nullable=False)
     token_hash = Column(String, nullable=False, index=True)

@@ -20,6 +20,7 @@ class Profile(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
         unique=True,
         nullable=False,
+        index=True,
     )
 
     username = Column(String(30), unique=True, nullable=False, index=True)

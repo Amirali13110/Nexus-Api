@@ -37,6 +37,7 @@ class Workspace(Base):
         String(26),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     name = Column(
@@ -69,6 +70,8 @@ class Workspace(Base):
     )
 
     invitations = relationship("WorkspaceInvitation", back_populates="workspace")
+
+    projects = relationship("Project", back_populates="workspace")
 
     members = relationship(
         "WorkspaceMember",

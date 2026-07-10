@@ -42,13 +42,17 @@ class WorkspaceMember(Base):
     )
 
     workspace_id = Column(
-        String(26), ForeignKey("workspaces.id", ondelete="CASCADE"), nullable=False
+        String(26),
+        ForeignKey("workspaces.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
 
     user_id = Column(
         String(26),
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
 
     role = Column(

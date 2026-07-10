@@ -14,6 +14,28 @@ router = APIRouter(
 )
 
 
+@router.get(
+    "/me",
+    response_model=ProfileResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def get_my_profile(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(select(Profile).where(Profile.user_id == current_user.id))
+
+    profile = result.scalar_one_or_none()
+
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile not found",
+        )
+
+    return profile
+
+
 @router.patch("/me", response_model=ProfileResponse)
 async def update_profile(
     payload: ProfileUpdate,

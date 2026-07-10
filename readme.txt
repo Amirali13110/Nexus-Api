@@ -121,11 +121,26 @@ Database constraints ensure data integrity even during concurrent requests.
 
 ## Workspace Member Management & Role-Based Permissions
 
-- ✅ Member creation and workspace invitations
-- ✅ Dynamic member role updates
-- ✅ Role-based permission system (Owner, Admin, Member)
-- ✅ Member removal with permission validation
-- ✅ Leave workspace functionality
-- ✅ Workspace access control and membership validation
-- ✅ Duplicate membership prevention
-- ✅ Input validation and comprehensive error handling
+✅ Member creation and workspace invitations
+✅ Dynamic member role updates
+✅ Role-based permission system (Owner, Admin, Member)
+✅ Member removal with permission validation
+✅ Leave workspace functionality
+✅ Workspace access control and membership validation
+✅ Duplicate membership prevention
+✅ Input validation and comprehensive error handling
+
+
+
+## Project Management
+
+✅ Create projects within a workspace
+✅ Retrieve all projects in a workspace
+✅ Retrieve a single project by its identifier
+✅ Update project details
+✅ Delete projects
+✅ Role-based authorization for project management (Owner & Admin)
+✅ Workspace membership validation for project access
+✅ Slug-based project identification
+✅ Automatic timestamp management (`created_at` & `updated_at`)
+✅ Input validation and comprehensive error handling
