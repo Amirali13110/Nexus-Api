@@ -2,8 +2,7 @@ from pydantic import BaseModel, EmailStr, field_validator
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict, EmailStr
 from app.models.workspace_invitation import InvitationStatus
-from app.models.workspace_member import WorkspaceRole
-from app.models.workspace_member import WorkspaceRole
+from app.enums.member import WorkspaceRole
 
 
 class WorkspaceInvitationPayload(BaseModel):

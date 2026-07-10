@@ -14,7 +14,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from ulid import ULID
 from app.core.database import Base
-from app.models.workspace_member import WorkspaceRole
+from app.enums.member import WorkspaceRole
 
 
 class InvitationStatus(str, Enum):

@@ -1,3 +1,4 @@
+from app.enums.member import WorkspaceRole
 import app.models
 
 from enum import Enum
@@ -16,12 +17,6 @@ from sqlalchemy.orm import relationship
 from ulid import ULID
 
 from app.core.database import Base
-
-
-class WorkspaceRole(str, Enum):
-    OWNER = "owner"
-    ADMIN = "admin"
-    MEMBER = "member"
 
 
 class WorkspaceMember(Base):

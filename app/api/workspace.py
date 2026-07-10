@@ -6,7 +6,8 @@ from app.core.database import get_db
 from app.core.security import get_current_user
 from app.models.auth import User
 from app.models.workspace import Workspace
-from app.models.workspace_member import WorkspaceMember, WorkspaceRole
+from app.models.workspace_member import WorkspaceMember
+from app.enums.member import WorkspaceRole
 from app.schemas.workspace import WorkspacePayload, WorkspaceListItem, WorkspaceResponse
 
 router = APIRouter(prefix="/workspaces", tags=["Workspaces"])

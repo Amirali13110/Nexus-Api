@@ -144,3 +144,27 @@ Database constraints ensure data integrity even during concurrent requests.
 ✅ Slug-based project identification
 ✅ Automatic timestamp management (`created_at` & `updated_at`)
 ✅ Input validation and comprehensive error handling
+
+# Issue Management
+
+✅ Create issues
+✅ Retrieve project issues
+✅ Retrieve a single issue
+✅ Update issues
+✅ Delete issues
+✅ Workspace member access control for creating, viewing, and updating issues
+✅ Workspace owner and admin authorization for managing all issues
+✅ Issue creator ownership validation for deletion
+✅ Project and workspace ownership verification
+✅ Assignee workspace membership validation
+✅ Issue status management
+✅ Issue priority management
+✅ Due date support
+✅ Issue assignment support
+✅ Creator and assignee relationships
+✅ Automatic issue creator assignment
+✅ Enum-based status and priority handling
+✅ Automatic `created_at` and `updated_at` timestamps
+✅ Secure workspace-scoped issue operations
+✅ ULID-based issue identifiers
+✅ Input validation and comprehensive error handling

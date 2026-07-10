@@ -9,7 +9,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from ulid import ULID
-
+import app.models
 from app.core.database import Base
 
 
@@ -52,3 +52,6 @@ class Project(Base):
     )
 
     workspace = relationship("Workspace", back_populates="projects")
+    issues = relationship(
+        "Issue", back_populates="project", cascade="all,delete-orphan"
+    )

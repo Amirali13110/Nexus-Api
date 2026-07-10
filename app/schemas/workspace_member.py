@@ -1,8 +1,7 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
-
-from app.models.workspace_member import WorkspaceRole
+from app.enums.member import WorkspaceRole
 from app.schemas.profile import ProfileResponse
 
 

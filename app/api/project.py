@@ -4,7 +4,8 @@ from sqlalchemy import select
 from app.core.database import get_db
 from app.models.auth import User
 from app.models.workspace import Workspace
-from app.models.workspace_member import WorkspaceMember, WorkspaceRole
+from app.models.workspace_member import WorkspaceMember
+from app.enums.member import WorkspaceRole
 from app.models.project import Project
 from app.schemas.project import (
     ProjectCreate,

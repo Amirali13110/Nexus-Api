@@ -8,8 +8,8 @@ from app.models.auth import User
 from app.models.workspace import Workspace
 from app.models.workspace_member import (
     WorkspaceMember,
-    WorkspaceRole,
 )
+from app.enums.member import WorkspaceRole
 from app.schemas.workspace_member import (
     WorkspaceMemberResponse,
     WorkspaceMemberRoleUpdate,

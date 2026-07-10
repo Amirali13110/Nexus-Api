@@ -33,6 +33,16 @@ class User(Base):
         "WorkspaceInvitation",
         back_populates="invited_by",
     )
+    assigned_issues = relationship(
+        "Issue",
+        foreign_keys="Issue.assignee_id",
+        back_populates="assignee",
+    )
+    created_issues = relationship(
+        "Issue",
+        foreign_keys="Issue.created_by",
+        back_populates="creator",
+    )
 
 
 class PasswordResetToken(Base):

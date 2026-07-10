@@ -9,6 +9,7 @@ from app.core.security import get_current_user
 from app.jobs.register import register_jobs
 from app.models.auth import User
 from app.api.workspace import router as workspace_router
+from app.api.issue import router as issue_router
 from app.api.project import router as project_router
 from app.api.workspace_member import router as workspace_member_router
 from app.api.workspace_invitation import router as workspace_invitation_router
@@ -40,6 +41,7 @@ app.include_router(workspace_router)
 app.include_router(workspace_invitation_router)
 app.include_router(workspace_member_router)
 app.include_router(project_router)
+app.include_router(issue_router)
 
 
 @app.get("/")

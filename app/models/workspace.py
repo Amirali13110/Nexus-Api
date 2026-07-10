@@ -1,5 +1,4 @@
 import app.models
-
 from sqlalchemy import (
     Column,
     DateTime,
@@ -72,8 +71,10 @@ class Workspace(Base):
     invitations = relationship("WorkspaceInvitation", back_populates="workspace")
 
     projects = relationship("Project", back_populates="workspace")
-
-    members = relationship(
-        "WorkspaceMember",
+    issues = relationship(
+        "Issue",
         back_populates="workspace",
+    )
+    members = relationship(
+        "WorkspaceMember", back_populates="workspace", cascade="all, delete-orphan"
     )

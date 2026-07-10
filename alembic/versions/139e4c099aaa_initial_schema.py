@@ -1,8 +1,8 @@
-"""Initial schema
+"""initial schema
 
-Revision ID: 125bbf99956b
+Revision ID: 139e4c099aaa
 Revises: 
-Create Date: 2026-07-08 23:46:26.960684
+Create Date: 2026-07-10 15:48:52.013666
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '125bbf99956b'
+revision: str = '139e4c099aaa'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -40,6 +40,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_email_change_tokens_token_hash'), 'email_change_tokens', ['token_hash'], unique=False)
+    op.create_index(op.f('ix_email_change_tokens_user_id'), 'email_change_tokens', ['user_id'], unique=False)
     op.create_table('password_reset_tokens',
     sa.Column('id', sa.String(length=26), nullable=False),
     sa.Column('user_id', sa.String(length=26), nullable=False),
@@ -51,6 +52,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_password_reset_tokens_token_hash'), 'password_reset_tokens', ['token_hash'], unique=False)
+    op.create_index(op.f('ix_password_reset_tokens_user_id'), 'password_reset_tokens', ['user_id'], unique=False)
     op.create_table('profiles',
     sa.Column('id', sa.String(length=26), nullable=False),
     sa.Column('user_id', sa.String(length=26), nullable=False),
@@ -59,9 +61,9 @@ def upgrade() -> None:
     sa.Column('bio', sa.String(), nullable=True),
     sa.Column('avatar_url', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('user_id')
+    sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_profiles_user_id'), 'profiles', ['user_id'], unique=True)
     op.create_index(op.f('ix_profiles_username'), 'profiles', ['username'], unique=True)
     op.create_table('workspaces',
     sa.Column('id', sa.String(length=26), nullable=False),
@@ -75,7 +77,22 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('owner_id', 'slug', name='uq_workspace_owner_slug')
     )
+    op.create_index(op.f('ix_workspaces_owner_id'), 'workspaces', ['owner_id'], unique=False)
     op.create_index(op.f('ix_workspaces_slug'), 'workspaces', ['slug'], unique=False)
+    op.create_table('projects',
+    sa.Column('id', sa.String(length=26), nullable=False),
+    sa.Column('name', sa.String(length=255), nullable=False),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('slug', sa.String(length=255), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('workspace_id', sa.String(length=26), nullable=False),
+    sa.ForeignKeyConstraint(['workspace_id'], ['workspaces.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('workspace_id', 'slug', name='unique_project_slug_per_workspace')
+    )
+    op.create_index(op.f('ix_projects_slug'), 'projects', ['slug'], unique=False)
+    op.create_index(op.f('ix_projects_workspace_id'), 'projects', ['workspace_id'], unique=False)
     op.create_table('workspace_invitations',
     sa.Column('id', sa.String(length=26), nullable=False),
     sa.Column('workspace_id', sa.String(length=26), nullable=False),
@@ -88,8 +105,7 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['invited_by_id'], ['users.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['workspace_id'], ['workspaces.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('workspace_id', 'email', name='uq_workspace_invitation_email')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_workspace_invitations_email'), 'workspace_invitations', ['email'], unique=False)
     op.create_index(op.f('ix_workspace_invitations_invited_by_id'), 'workspace_invitations', ['invited_by_id'], unique=False)
@@ -105,23 +121,62 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('workspace_id', 'user_id', name='uq_workspace_member')
     )
+    op.create_index(op.f('ix_workspace_members_user_id'), 'workspace_members', ['user_id'], unique=False)
+    op.create_index(op.f('ix_workspace_members_workspace_id'), 'workspace_members', ['workspace_id'], unique=False)
+    op.create_table('issues',
+    sa.Column('id', sa.String(length=26), nullable=False),
+    sa.Column('title', sa.String(length=255), nullable=False),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.Column('workspace_id', sa.String(length=26), nullable=False),
+    sa.Column('project_id', sa.String(length=26), nullable=False),
+    sa.Column('created_by', sa.String(length=26), nullable=False),
+    sa.Column('assignee_id', sa.String(length=26), nullable=True),
+    sa.Column('due_date', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('priority', sa.Enum('NOPRIORITY', 'LOW', 'MEDIUM', 'HIGH', 'URGENT', name='issuepriority'), nullable=False),
+    sa.Column('status', sa.Enum('BACKLOG', 'TODO', 'IN_PROGRESS', 'IN_REVIEW', 'DONE', name='issuestatus'), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['assignee_id'], ['users.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['created_by'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['project_id'], ['projects.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['workspace_id'], ['workspaces.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_issues_assignee_id'), 'issues', ['assignee_id'], unique=False)
+    op.create_index(op.f('ix_issues_created_by'), 'issues', ['created_by'], unique=False)
+    op.create_index(op.f('ix_issues_project_id'), 'issues', ['project_id'], unique=False)
+    op.create_index(op.f('ix_issues_workspace_id'), 'issues', ['workspace_id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_index(op.f('ix_issues_workspace_id'), table_name='issues')
+    op.drop_index(op.f('ix_issues_project_id'), table_name='issues')
+    op.drop_index(op.f('ix_issues_created_by'), table_name='issues')
+    op.drop_index(op.f('ix_issues_assignee_id'), table_name='issues')
+    op.drop_table('issues')
+    op.drop_index(op.f('ix_workspace_members_workspace_id'), table_name='workspace_members')
+    op.drop_index(op.f('ix_workspace_members_user_id'), table_name='workspace_members')
     op.drop_table('workspace_members')
     op.drop_index(op.f('ix_workspace_invitations_workspace_id'), table_name='workspace_invitations')
     op.drop_index(op.f('ix_workspace_invitations_invited_by_id'), table_name='workspace_invitations')
     op.drop_index(op.f('ix_workspace_invitations_email'), table_name='workspace_invitations')
     op.drop_table('workspace_invitations')
+    op.drop_index(op.f('ix_projects_workspace_id'), table_name='projects')
+    op.drop_index(op.f('ix_projects_slug'), table_name='projects')
+    op.drop_table('projects')
     op.drop_index(op.f('ix_workspaces_slug'), table_name='workspaces')
+    op.drop_index(op.f('ix_workspaces_owner_id'), table_name='workspaces')
     op.drop_table('workspaces')
     op.drop_index(op.f('ix_profiles_username'), table_name='profiles')
+    op.drop_index(op.f('ix_profiles_user_id'), table_name='profiles')
     op.drop_table('profiles')
+    op.drop_index(op.f('ix_password_reset_tokens_user_id'), table_name='password_reset_tokens')
     op.drop_index(op.f('ix_password_reset_tokens_token_hash'), table_name='password_reset_tokens')
     op.drop_table('password_reset_tokens')
+    op.drop_index(op.f('ix_email_change_tokens_user_id'), table_name='email_change_tokens')
     op.drop_index(op.f('ix_email_change_tokens_token_hash'), table_name='email_change_tokens')
     op.drop_table('email_change_tokens')
     op.drop_index(op.f('ix_users_email'), table_name='users')
