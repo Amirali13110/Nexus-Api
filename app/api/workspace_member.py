@@ -13,6 +13,7 @@ from app.enums.member import WorkspaceRole
 from app.schemas.workspace_member import (
     WorkspaceMemberResponse,
     WorkspaceMemberRoleUpdate,
+    WorkspaceMembersResponse,
 )
 
 router = APIRouter(
@@ -23,7 +24,7 @@ router = APIRouter(
 
 @router.get(
     "/{workspace_id}/members",
-    response_model=list[WorkspaceMemberResponse],
+    response_model=WorkspaceMembersResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_workspace_members(
@@ -61,7 +62,7 @@ async def get_workspace_members(
 
     members = result.scalars().all()
 
-    return members
+    return {"current_user_role": current_membership.role, "members": members}
 
 
 @router.get(

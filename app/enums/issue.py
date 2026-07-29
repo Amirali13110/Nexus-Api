@@ -16,3 +16,17 @@ class IssueStatus(str, Enum):
     IN_PROGRESS = "in_progress"
     IN_REVIEW = "in_review"
     DONE = "done"
+
+
+class SortOrder(str, Enum):
+    ASC = "asc"
+    DESC = "desc"
+
+
+class IssueSortBy(str, Enum):
+    CREATED_AT = "created_at"
+    UPDATED_AT = "updated_at"
+    TITLE = "title"
+    PRIORITY = "priority"
+    STATUS = "status"
+    DUE_DATE = "due_date"

@@ -46,6 +46,13 @@ class IssueUpdate(BaseModel):
     status: IssueStatus | None = None
 
 
+class IssueAssigneeResponse(BaseModel):
+    id: str
+    full_name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class IssueResponse(BaseModel):
     id: str
 
@@ -59,7 +66,7 @@ class IssueResponse(BaseModel):
 
     created_by: str
 
-    assignee_id: str | None
+    assignee: IssueAssigneeResponse | None
 
     due_date: datetime | None
 

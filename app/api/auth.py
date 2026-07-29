@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta, timezone
+from jose import jwt, JWTError
+
 from app.models.profile import Profile
 from app.services.email_services import (
     send_reset_password_email,
     send_email_change_confirmation,
 )
-
+from sqlalchemy.orm import selectinload
 from fastapi.security import OAuth2PasswordRequestForm
 from app.core.config import settings
 from sqlalchemy.exc import IntegrityError
@@ -14,6 +16,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.core.database import get_db
 from app.core.security import (
+    ALGORITHM,
+    SECRET_KEY,
     generate_reset_token,
     get_current_user,
     get_password_hash,
@@ -26,6 +30,7 @@ from app.models.auth import PasswordResetToken, User, EmailChangeToken
 
 from app.schemas.auth import (
     ForgotPasswordRequest,
+    RefreshTokenRequest,
     ResetPasswordRequest,
     UserCreate,
     TokenResponse,
@@ -50,7 +55,11 @@ async def sign_up(
     payload: UserCreate,
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(User).where(User.email == payload.email))
+    result = await db.execute(
+        select(User)
+        .options(selectinload(User.profile))
+        .where(User.email == payload.email)
+    )
     existing_user = result.scalar_one_or_none()
 
     if existing_user:
@@ -99,8 +108,11 @@ async def sign_up(
             detail="Unable to create account.",
         )
 
-    await db.refresh(new_user)
-    await db.refresh(new_profile)
+    result = await db.execute(
+        select(User).options(selectinload(User.profile)).where(User.id == new_user.id)
+    )
+
+    new_user = result.scalar_one()
 
     access_token = create_access_token(data={"sub": str(new_user.id)})
 
@@ -116,7 +128,11 @@ async def sign_up(
 
 @router.post("/signin", response_model=TokenResponse)
 async def sign_in(payload: UserLogin, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(User).where(User.email == payload.email))
+    result = await db.execute(
+        select(User)
+        .options(selectinload(User.profile))
+        .where(User.email == payload.email)
+    )
     user = result.scalar_one_or_none()
 
     if not user or not verify_password(payload.password, user.hashed_password):
@@ -134,6 +150,11 @@ async def sign_in(payload: UserLogin, db: AsyncSession = Depends(get_db)):
         refresh_token=refresh_token,
         user=UserResponse.model_validate(user),
     )
+
+
+@router.get("/me", response_model=UserResponse)
+async def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
 
 
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)
@@ -165,7 +186,7 @@ async def forgot_password(
         db.add(reset_token)
         await db.commit()
 
-        reset_link = f"{frontend_url}/updatePassword?token={raw_token}"
+        reset_link = f"{frontend_url}/resetPassword?token={raw_token}"
         background_tasks.add_task(send_reset_password_email, user.email, reset_link)
 
     return {"message": "If that email is registered, a reset link has been sent."}
@@ -195,6 +216,12 @@ async def reset_password(
     if not user:
         raise HTTPException(status_code=400, detail="Invalid or expired reset token")
 
+    if verify_password(payload.new_password, user.hashed_password):
+        raise HTTPException(
+            status_code=400,
+            detail="New password must be different from the current password",
+        )
+
     user.hashed_password = get_password_hash(payload.new_password)
     reset_token.used = True
 
@@ -214,7 +241,9 @@ async def login_for_access_token(
 ):
     email = form_data.username
 
-    result = await db.execute(select(User).where(User.email == email))
+    result = await db.execute(
+        select(User).options(selectinload(User.profile)).where(User.email == email)
+    )
     user = result.scalar_one_or_none()
 
     if not user or not verify_password(form_data.password, user.hashed_password):
@@ -242,13 +271,13 @@ async def update_password(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if not verify_password(payload.current_password, current_user.hashed_password):
+    if not verify_password(payload.password, current_user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Current password is incorrect",
         )
 
-    if payload.current_password == payload.new_password:
+    if payload.password == payload.new_password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="New password must be different from the current password",
@@ -351,3 +380,29 @@ async def confirm_email_update(
     await db.commit()
 
     return {"message": "Email updated successfully"}
+
+
+@router.post("/refresh")
+async def refresh_access_token(payload: RefreshTokenRequest):
+
+    try:
+        token_data = jwt.decode(
+            payload.refresh_token, SECRET_KEY, algorithms=[ALGORITHM]
+        )
+
+        if token_data.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+
+        user_id = token_data.get("sub")
+
+        if not user_id:
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+        new_access_token = create_access_token({"sub": user_id})
+
+        new_refresh_token = create_refresh_token({"sub": user_id})
+
+        return {"access_token": new_access_token, "refresh_token": new_refresh_token}
+
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")

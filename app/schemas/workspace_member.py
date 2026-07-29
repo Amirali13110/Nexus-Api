@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 from app.enums.member import WorkspaceRole
 from app.schemas.profile import ProfileResponse
@@ -7,7 +6,6 @@ from app.schemas.profile import ProfileResponse
 
 class WorkspaceMemberUserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
     id: str
     email: EmailStr
     profile: ProfileResponse
@@ -21,6 +19,11 @@ class WorkspaceMemberResponse(BaseModel):
     created_at: datetime
 
     user: WorkspaceMemberUserResponse
+
+
+class WorkspaceMembersResponse(BaseModel):
+    current_user_role: WorkspaceRole
+    members: list[WorkspaceMemberResponse]
 
 
 class WorkspaceMemberRoleUpdate(BaseModel):

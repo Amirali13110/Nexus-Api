@@ -1,7 +1,7 @@
-import re
 from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 from app.core.validators import validate_full_name
 from app.core.validators import validate_password, validate_username
+from app.schemas.profile import ProfileResponse
 
 
 class UserCreate(BaseModel):
@@ -44,7 +44,7 @@ class UserLogin(BaseModel):
 class UserResponse(BaseModel):
     id: str
     email: str
-
+    profile: ProfileResponse | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -96,3 +96,7 @@ class UpdateEmailRequest(BaseModel):
 
 class ConfirmEmailUpdateRequest(BaseModel):
     token: str
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
