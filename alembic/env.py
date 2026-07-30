@@ -2,7 +2,10 @@ from logging.config import fileConfig
 from sqlalchemy import pool
 from alembic import context
 import asyncio
+import ssl
 from sqlalchemy.ext.asyncio import async_engine_from_config
+
+from app.core.config import settings
 from app.core.database import Base
 from app.models.auth import User
 from app.models.profile import Profile
@@ -15,6 +18,8 @@ from app.models.issue import Issue
 from app.models.workspace_invitation import WorkspaceInvitation
 
 config = context.config
+
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
@@ -33,10 +38,15 @@ def do_run_migrations(connection):
 
 async def run_migrations_online():
     """Run migrations in 'online' mode."""
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+
     connectable = async_engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
+        connect_args={"ssl": ssl_context},
     )
 
     async with connectable.connect() as connection:
